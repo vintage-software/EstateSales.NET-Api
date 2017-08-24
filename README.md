@@ -14,7 +14,7 @@ Content-Type: application/x-www-form-urlencoded
 ```
 
 ```
-grant_type=refresh_token&refresh_token={*refreshToken*}
+grant_type=refresh_token&refresh_token={refreshToken}
 ```
 
 ## Sample Api Call
@@ -23,7 +23,7 @@ grant_type=refresh_token&refresh_token={*refreshToken*}
 POST /api/sales  
 Host: https://www.estatesales.net  
 X_XSRF: X_XSRF  
-Authorization: Bearer {*accessToken*}   
+Authorization: Bearer {accessToken}   
 Content-Type: application/json
 ```
 
