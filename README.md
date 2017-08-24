@@ -1,4 +1,4 @@
-# EstateSales.NET-Api
+# EstateSales.NET Public API
 * All api requests must set the host to: `https://www.estatesales.net`.
 * All authenticated api requests must include the following header: `X_XSRF: X_XSRF`.
 * Refresh tokens (api keys) will last indefinetely until revoked by the owner.
