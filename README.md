@@ -17,6 +17,15 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=refresh_token&refresh_token={refreshToken}
 ```
 
+#### Sample Response
+```
+{
+    "access_token": "abcdefghi123456789",
+    "token_type": "bearer",
+    "expires_in": 1800
+}
+```
+
 ## Sample Api Call
 
 ```
