@@ -5,12 +5,12 @@ VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EstateSalesNetPublicApi", "EstateSalesNetPublicApi\EstateSalesNetPublicApi.csproj", "{6B2D57AE-DDD4-4797-B181-6F9B943B242D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoUseOfApi", "DemoUseOfApi\DemoUseOfApi.csproj", "{FD5075DE-8E5F-4E2F-BA85-27609666A495}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F7708CD5-8B36-4262-AA1D-881A1A4859DB}"
 	ProjectSection(SolutionItems) = preProject
 		shared\AssemblyAttributes.cs = shared\AssemblyAttributes.cs
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EstateSalesNetPublicApi.Demo", "EstateSalesNetPublicApi.Demo\EstateSalesNetPublicApi.Demo.csproj", "{FD5075DE-8E5F-4E2F-BA85-27609666A495}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,8 +1,6 @@
-﻿using EstateSalesNetPublicApi;
-using System;
-using Models = EstateSalesNetPublicApi.Models;
+﻿using System;
 
-namespace DemoUseOfApi
+namespace EstateSalesNetPublicApi.Demo
 {
     public static class Program
     {

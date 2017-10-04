@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DemoUseOfApi")]
+[assembly: AssemblyTitle("EstateSalesNetPublicApi.Demo")]
 [assembly: AssemblyDescription("Beta")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Vintage Software, LLC")]
-[assembly: AssemblyProduct("DemoUseOfApi")]
+[assembly: AssemblyProduct("EstateSalesNetPublicApi.Demo")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
