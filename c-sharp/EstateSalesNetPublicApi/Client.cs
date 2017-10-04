@@ -36,12 +36,12 @@ namespace EstateSalesNetPublicApi
 
             if (apiBaseUrl.EndsWith("/"))
             {
-                throw new ArgumentException(nameof(apiBaseUrl), "Url must not end with a slash");
+                throw new ArgumentException("Url must not end with a slash", nameof(apiBaseUrl));
             }
 
             if (apiBaseUrl.StartsWith("https://") == false)
             {
-                throw new ArgumentException(nameof(apiBaseUrl), "Url must begin with https://");
+                throw new ArgumentException("Url must begin with https://", nameof(apiBaseUrl));
             }
 
             this.apiBaseUrl = apiBaseUrl;
