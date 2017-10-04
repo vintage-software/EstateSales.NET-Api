@@ -8,8 +8,9 @@ namespace EstateSalesNetPublicApi
 {
     public class Client
     {
-        private readonly string apiBaseUrl;
         private readonly string apiKey;
+        private readonly RestClient restClient;
+
         private string accessToken;
         private DateTime? accessTokenGoodUntil;
 
@@ -36,16 +37,11 @@ namespace EstateSalesNetPublicApi
 
             if (apiBaseUrl.EndsWith("/"))
             {
-                throw new ArgumentException("Url must not end with a slash", nameof(apiBaseUrl));
+                apiBaseUrl = apiBaseUrl.Substring(0, apiBaseUrl.Length - 1);
             }
 
-            if (apiBaseUrl.StartsWith("https://") == false)
-            {
-                throw new ArgumentException("Url must begin with https://", nameof(apiBaseUrl));
-            }
-
-            this.apiBaseUrl = apiBaseUrl;
             this.apiKey = apiKey;
+            this.restClient = new RestClient(apiBaseUrl);
         }
 
         /// <summary>
@@ -57,7 +53,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
 
-            IRestResponse<List<Sale>> returnSale = this.CreateRestClient().Get<List<Sale>>(saleRequest);
+            IRestResponse<List<Sale>> returnSale = this.restClient.Get<List<Sale>>(saleRequest);
             return returnSale.Data.AsReadOnly();
         }
 
@@ -69,7 +65,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.GET);
 
-            IRestResponse<Sale> returnSale = this.CreateRestClient().Get<Sale>(saleRequest);
+            IRestResponse<Sale> returnSale = this.restClient.Get<Sale>(saleRequest);
             return returnSale.Data;
         }
 
@@ -79,7 +75,7 @@ namespace EstateSalesNetPublicApi
         public Sale CreateSale(Sale sale)
         {
             RestRequest saleRequest = this.CreateRestRequest("/api/public-sales/", Method.POST, sale);
-            IRestResponse<Sale> returnSale = this.CreateRestClient().Post<Sale>(saleRequest);
+            IRestResponse<Sale> returnSale = this.restClient.Post<Sale>(saleRequest);
             return returnSale.Data;
         }
 
@@ -93,7 +89,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest dateRequest = this.CreateRestRequest("/api/sale-dates/", Method.POST, saleDate);
 
-            IRestResponse<SaleDate> returnSaleDate = this.CreateRestClient().Post<SaleDate>(dateRequest);
+            IRestResponse<SaleDate> returnSaleDate = this.restClient.Post<SaleDate>(dateRequest);
             return returnSaleDate.Data;
         }
 
@@ -105,7 +101,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest pictureRequest = this.CreateRestRequest("/api/sale-pictures/", Method.POST, salePicture);
 
-            IRestResponse<SalePicture> returnSalePicture = this.CreateRestClient().Post<SalePicture>(pictureRequest);
+            IRestResponse<SalePicture> returnSalePicture = this.restClient.Post<SalePicture>(pictureRequest);
             return returnSalePicture.Data;
         }
 
@@ -128,7 +124,7 @@ namespace EstateSalesNetPublicApi
             RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/{sale.Id}", Method.PUT, sale);
             saleRequest.AddJsonBody(sale);
 
-            IRestResponse<Sale> response = this.CreateRestClient().Put<Sale>(saleRequest);
+            IRestResponse<Sale> response = this.restClient.Put<Sale>(saleRequest);
             return response.Data;
         }
 
@@ -143,7 +139,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest publishRequest = this.CreateRestRequest($"/api/public-sales/{saleId}/publish/{autoPayAnyBalance}", Method.POST);
 
-            IRestResponse<Sale> response = this.CreateRestClient().Post<Sale>(publishRequest);
+            IRestResponse<Sale> response = this.restClient.Post<Sale>(publishRequest);
             return response.Data;
         }
 
@@ -155,7 +151,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest unpublishRequest = this.CreateRestRequest($"/api/public-sales/{saleId}/unpublish", Method.POST);
 
-            IRestResponse<Sale> response = this.CreateRestClient().Post<Sale>(unpublishRequest);
+            IRestResponse<Sale> response = this.restClient.Post<Sale>(unpublishRequest);
             return response.Data;
         }
 
@@ -168,7 +164,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.DELETE);
 
-            IRestResponse response = this.CreateRestClient().Delete(saleRequest);
+            IRestResponse response = this.restClient.Delete(saleRequest);
             return response.StatusCode;
         }
 
@@ -180,7 +176,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest dateRequest = this.CreateRestRequest($"/api/sale-dates/{dateId}", Method.DELETE);
 
-            IRestResponse response = this.CreateRestClient().Delete(dateRequest);
+            IRestResponse response = this.restClient.Delete(dateRequest);
             return response.StatusCode;
         }
 
@@ -192,26 +188,8 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest pictureRequest = this.CreateRestRequest($"/api/sale-pictures/{pictureId}", Method.DELETE);
 
-            IRestResponse response = this.CreateRestClient().Delete(pictureRequest);
+            IRestResponse response = this.restClient.Delete(pictureRequest);
             return response.StatusCode;
-        }
-
-        private bool NeedNewAccessToken()
-        {
-            return string.IsNullOrEmpty(this.accessToken) || this.accessTokenGoodUntil.HasValue == false || this.accessTokenGoodUntil.Value < DateTime.UtcNow.AddMinutes(-1);
-        }
-
-        private void SetNewAccessToken()
-        {
-            RestRequest tokenRequest = new RestRequest("/token", Method.POST);
-            tokenRequest.AddParameter("grant_type", "refresh_token");
-            tokenRequest.AddParameter("refresh_token", this.apiKey);
-
-            RestClient client = new RestClient(this.apiBaseUrl);
-            IRestResponse<AccessTokenResponse> response = client.Post<AccessTokenResponse>(tokenRequest);
-
-            this.accessToken = response.Data.AccessToken;
-            this.accessTokenGoodUntil = DateTime.UtcNow.AddSeconds(response.Data.ExpiresIn);
         }
 
         private RestRequest CreateRestRequest(string url, Method method, object jsonObject = null)
@@ -233,9 +211,21 @@ namespace EstateSalesNetPublicApi
             return request;
         }
 
-        private RestClient CreateRestClient()
+        private bool NeedNewAccessToken()
         {
-            return new RestClient(this.apiBaseUrl);
+            return string.IsNullOrEmpty(this.accessToken) || this.accessTokenGoodUntil.HasValue == false || this.accessTokenGoodUntil.Value < DateTime.UtcNow.AddMinutes(-1);
+        }
+
+        private void SetNewAccessToken()
+        {
+            RestRequest tokenRequest = new RestRequest("/token", Method.POST);
+            tokenRequest.AddParameter("grant_type", "refresh_token");
+            tokenRequest.AddParameter("refresh_token", this.apiKey);
+
+            IRestResponse<AccessTokenResponse> response = this.restClient.Post<AccessTokenResponse>(tokenRequest);
+
+            this.accessToken = response.Data.AccessToken;
+            this.accessTokenGoodUntil = DateTime.UtcNow.AddSeconds(response.Data.ExpiresIn);
         }
     }
 }
