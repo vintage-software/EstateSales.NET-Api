@@ -9,9 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DemoUseOfApi</RootNamespace>
     <AssemblyName>DemoUseOfApi</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkMonikerAssemblyAttributesFileClean>False</TargetFrameworkMonikerAssemblyAttributesFileClean>
+    <TargetFrameworkMonikerAssemblyAttributesPath>$(MSBuildThisFileDirectory)..\shared\AssemblyAttributes.cs</TargetFrameworkMonikerAssemblyAttributesPath>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
