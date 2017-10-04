@@ -8,5 +8,8 @@
       <Word>EstateSales</Word>
       <Word>api-keys</Word>
     </Recognized>
+    <DiscreteExceptions>
+      <Term>EstateSales</Term>
+    </DiscreteExceptions>
   </Words>
 </Dictionary>
