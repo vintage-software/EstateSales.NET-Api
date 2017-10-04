@@ -1,103 +1,151 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 namespace EstateSalesNetPublicApi.Demo
 {
     public static class Program
     {
+        private const string ApiBaseUrl = null; // Set to `null` to use the default.
+
         public static void Main()
         {
-            // Set your API Key
-            string apiKey = "SET_YOUR_API_KEY";
+            Console.Title = "EstateSales.NET Public Sales API Demo";
 
-            // Quick check for a first time user.
-            CheckDefaultValues(apiKey);
+            string apiKey = ConsoleHelpers.Prompt<string>("Enter your API Key");
+            int orgId = ConsoleHelpers.Prompt<int>("Enter your Org ID");
 
-            // First create a new client to interact with the API
-            Client client = new Client(apiKey);
+            // First create a new client to interact with the API.
+            Client client = string.IsNullOrEmpty(ApiBaseUrl) ? new Client(apiKey) : new Client(apiKey, ApiBaseUrl);
 
-            // You can do things like get your current list of sales
-            // The number 1234 below is the orgID (or your account number)
-            // IReadOnlyCollection<Models.Sale> currentSales = client.GetEditableSales(1234);
+            // You can do things like get your current list of sales.
+            Console.WriteLine();
+            Console.WriteLine("Retrieving your active sales...");
 
-            // You can request one of your sales and see the values currently stored
-            // The number 12345 below is the saleID
-            // Models.Sale testSale = client.GetSale(12345);
+            IReadOnlyCollection<Models.Sale> editableSales = client.GetEditableSales(orgId);
 
-            // You can create a sale
-            Models.Sale savedSale = client.CreateSale(GetSampleSale());
+            if (editableSales.Any())
+            {
+                Console.WriteLine($"You have {editableSales.Count} editable sale(s)!");
 
-            // You can use that savedSale and create some dates on your sale
+                foreach (Models.Sale editableSale in editableSales)
+                {
+                    Console.WriteLine($"{editableSale.Name} ({(editableSale.IsPublished ? "Published" : "Not Published")}) ({ApiBaseUrl}{editableSale.Url})");
+                }
+            }
+            else
+            {
+                Console.WriteLine("You have no editable sales. :( That's okay though, we're about to learn how to add one!");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Next, we will add a new sale...");
+            Console.WriteLine();
+
+            // You can create a sale.
+            Models.Sale sale = GetSampleSale(orgId);
+
+            Console.WriteLine();
+            Console.WriteLine("Saving your sale...");
+
+            sale = client.CreateSale(sale);
+
+            Console.WriteLine();
+            Console.WriteLine("Setting your new sale to run for the next three days...");
+
+            // You can use that savedSale and create some dates on your sale.
             // We are just setting up the objects to send...
-            Models.SaleDate date1 = GetSampleSaleDate(savedSale.Id, DateTime.Parse("9/23/2017 9am"), DateTime.Parse("9/23/2017 4pm"));
-            Models.SaleDate date2 = GetSampleSaleDate(savedSale.Id, DateTime.Parse("9/24/2017 9am"), DateTime.Parse("9/24/2017 4pm"));
-            Models.SaleDate date3 = GetSampleSaleDate(savedSale.Id, DateTime.Parse("9/25/2017 9am"), DateTime.Parse("9/25/2017 4pm"));
+            DateTime tomorrowAt9am = DateTime.Now.Date.AddDays(1).AddHours(9).ToUniversalTime();
+            DateTime tomorrowAt4pm = DateTime.Now.Date.AddDays(1).AddHours(16).ToUniversalTime();
+            Models.SaleDate date1 = GetSampleSaleDate(sale.Id, tomorrowAt9am, tomorrowAt4pm);
+            Models.SaleDate date2 = GetSampleSaleDate(sale.Id, tomorrowAt9am.AddDays(1), tomorrowAt4pm.AddDays(1));
+            Models.SaleDate date3 = GetSampleSaleDate(sale.Id, tomorrowAt9am.AddDays(2), tomorrowAt4pm.AddDays(2));
 
-            // Now we are sending those to the API to be saved
-            Models.SaleDate savedDate1 = client.CreateSaleDate(date1);
-            Models.SaleDate savedDate2 = client.CreateSaleDate(date2);
-            Models.SaleDate savedDate3 = client.CreateSaleDate(date3);
+            // Now we are sending those to the API to be saved.
+            date1 = client.CreateSaleDate(date1);
+            date2 = client.CreateSaleDate(date2);
+            date3 = client.CreateSaleDate(date3);
 
-            // Get a picture ready to go
-            Models.SalePicture pic1 = GetSampleSalePicture(savedSale.Id, "testing", @"C:\Users\mmcquade\Pictures\testing.jpg");
+            Models.SalePicture pic1 = null;
 
-            // Send it to the API to be saved
-            Models.SalePicture savedPicture = client.CreateSalePicture(pic1);
-
-            // You can publish your sale
-            client.PublishSale(savedSale.Id, true);
-
-            // You can unpublish your sale
-            client.UnpublishSale(savedSale.Id);
-
-            // You can update things on your sale if you need to
-            savedSale.Directions = "These are my new directions";
-
-            // savedSale.Description = "This is my updated description";
-            client.UpdateSale(savedSale);
-
-            // You can delete any pictures you'd like (as long as you saved their id when initially saving them)
-            client.DeletePicture(savedPicture.Id);
-
-            // You can delete any dates you'd like (as long as you saved their id when initially saving them)
-            client.DeleteSaleDate(savedDate1.Id);
-            client.DeleteSaleDate(savedDate2.Id);
-            client.DeleteSaleDate(savedDate3.Id);
-
-            // You can delete your sale if you need to
-            client.DeleteSale(savedSale.Id);
-        }
-
-        private static void CheckDefaultValues(string apiKey)
-        {
-            if (apiKey == "SET_YOUR_API_KEY")
+            Console.WriteLine();
+            string picturePath = ConsoleHelpers.Prompt<string>("Enter a path to a picture (optional)");
+            if (string.IsNullOrEmpty(picturePath) == false)
             {
-                throw new Exception("You must create an API key inside your EstateSales.NET account. Go to www.estatesales.net/account/org/api-keys to do this.");
+                if (File.Exists(picturePath))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Uploading your sale picture...");
+
+                    // Get a picture ready to go.
+                    pic1 = GetSampleSalePicture(sale.Id, "testing", picturePath);
+
+                    // Send it to the API to be saved.
+                    pic1 = client.CreateSalePicture(pic1);
+                }
+                else
+                {
+                    Console.WriteLine("File not found, skipping picture upload.");
+                }
             }
 
-            if (GetSampleSale().OrgId == 1234)
-            {
-                throw new Exception("You need to update the GetSampleSale() code below to use your actual orgID (your EstateSales.NET account number)");
-            }
+            Process.Start($"{ApiBaseUrl}{sale.Url}");
+
+            Console.WriteLine();
+            Console.WriteLine($"Okay, your sale created and populated with dates and a picture!");
+            Console.WriteLine($"You can view it at https://www.estatesales.net{sale.Url}.");
+            ConsoleHelpers.Pause();
+
+            // You can publish your sale.
+            ////client.PublishSale(sale.Id, true);
+
+            // You can unpublish your sale.
+            ////client.UnpublishSale(sale.Id);
+
+            // You can update things on your sale if you need to.
+            ////sale.Directions = "These are my new directions.";
+            ////sale.Description = "This is my updated description.";
+            ////client.UpdateSale(sale);
+
+            Console.WriteLine();
+            Console.WriteLine("Next, we will delete the sale we just created...");
+
+            // You can delete any pictures you'd like (as long as you saved their id when initially saving them).
+            client.DeletePicture(pic1.Id);
+
+            // You can delete any dates you'd like (as long as you saved their id when initially saving them).
+            client.DeleteSaleDate(date1.Id);
+            client.DeleteSaleDate(date2.Id);
+            client.DeleteSaleDate(date3.Id);
+
+            // You can delete your sale if you need to.
+            // You do not need to delete the sale dates and sale pictures first. You can just delete the sale.
+            client.DeleteSale(sale.Id);
+
+            Console.WriteLine();
+            Console.WriteLine("Okay, we're done now. Enjoy using the EstateSales.NET Sales API!");
+            ConsoleHelpers.Pause(true);
         }
 
-        private static Models.Sale GetSampleSale()
+        private static Models.Sale GetSampleSale(int orgId)
         {
             return new Models.Sale()
             {
-                // Id = 12345,   Be sure to set the Id when you are using this object to edit
-                OrgId = 1234,
+                OrgId = orgId,
                 SaleType = Models.SaleType.EstateSales,
-                Name = "This is my sale name",
-                Address = "100 My Address",
+                Name = ConsoleHelpers.Prompt<string>("Enter a name for your sale"),
+                Address = ConsoleHelpers.Prompt<string>("Enter an address for your sale"),
                 CrimeWorriesAddress = string.Empty,
-                PostalCodeNumber = "63755",
-                Directions = "These are my directions",
+                PostalCodeNumber = ConsoleHelpers.Prompt<string>("Enter a zip code for your sale"),
+                Directions = "These are my directions.",
                 UtcCustomDateToShowAddress = null,
                 ShowAddressType = Models.ShowAddressType.DayBeforeAtNine,
-                Description = "<p>This is my description</p><ul><li>My Item</li><li>My Other Item</li></ul>",
-                Terms = "These are my terms",
+                Description = ConsoleHelpers.Prompt<string>("Enter a description for your sale"),
+                Terms = ConsoleHelpers.Prompt<string>("Enter terms for your sale"),
                 AuctionUrl = string.Empty,  // Only set when the sale type is set to OnlineOnlyAuction
-                VideoUrl = string.Empty
+                VideoUrl = ConsoleHelpers.Prompt<string>("Enter a sale video url (optional)")
             };
         }
 
@@ -113,11 +161,11 @@ namespace EstateSalesNetPublicApi.Demo
             };
         }
 
-        private static Models.SalePicture GetSampleSalePicture(int saleId, string description, string pathToImage)
+        private static Models.SalePicture GetSampleSalePicture(int saleId, string description, string picturePath)
         {
-            // This is an example of getting an image from a file path, but you just need to set the byte array
-            // It doesn't HAVE to come from the file system.
-            byte[] imageData = System.IO.File.ReadAllBytes(pathToImage);
+            // This is an example of getting an image from a file path.
+            // But you just need to set the byte array, it doesn't HAVE to come from the file system.
+            byte[] imageData = File.ReadAllBytes(picturePath);
 
             return new Models.SalePicture()
             {
