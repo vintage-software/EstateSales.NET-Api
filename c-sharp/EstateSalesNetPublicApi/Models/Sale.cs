@@ -34,7 +34,10 @@ namespace EstateSalesNetPublicApi.Models
         public string VideoUrl { get; set; }
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "JSON Deserialization")]
-        public string IsPublished { get; internal set; }
+        public string Url { get; private set; }
+
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "JSON Deserialization")]
+        public bool IsPublished { get; private set; }
 
         public DateTime UtcDateCreated { get; set; }
 
