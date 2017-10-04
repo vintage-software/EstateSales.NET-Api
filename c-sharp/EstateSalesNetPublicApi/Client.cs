@@ -49,7 +49,7 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         /// <param name="orgId">The orgId is your account number on EstateSales.NET</param>
         /// <returns>This returns a list of sale objects</returns>
-        public IReadOnlyCollection<Sale> GetActiveSales(int orgId)
+        public IReadOnlyCollection<Sale> GetEditableSales(int orgId)
         {
             RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
 

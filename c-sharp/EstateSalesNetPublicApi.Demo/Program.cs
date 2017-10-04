@@ -17,7 +17,7 @@ namespace EstateSalesNetPublicApi.Demo
 
             // You can do things like get your current list of sales
             // The number 1234 below is the orgID (or your account number)
-            // IReadOnlyCollection<Models.Sale> currentSales = client.GetActiveSales(1234);
+            // IReadOnlyCollection<Models.Sale> currentSales = client.GetEditableSales(1234);
 
             // You can request one of your sales and see the values currently stored
             // The number 12345 below is the saleID
