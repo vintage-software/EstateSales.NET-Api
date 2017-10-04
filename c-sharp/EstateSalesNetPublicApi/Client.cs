@@ -21,19 +21,16 @@ namespace EstateSalesNetPublicApi
         /// is released as a BETA release and could break at ANY time. We will try to notify API users of potential breaking
         /// changes, but can't guarantee that we will.
         /// </summary>
-        /// <param name="apiBaseUrl">The base URL will almost always be https://www.estatesales.net</param>
+        /// <param name="apiBaseUrl">The base URL will almost always be https://www.estatesales.net (the default).</param>
         /// <param name="apiKey">The key will be one that you generate inside your account on EstateSales.NET. You can do that here: https://www.estatesales.net/account/org/api-keys </param>
-        public Client(string apiKey, string apiBaseUrl = "https://www.estatesales.net")
+        public Client(string apiKey, string apiBaseUrl = null)
         {
-            if (string.IsNullOrEmpty(apiBaseUrl))
-            {
-                throw new ArgumentNullException(nameof(apiBaseUrl));
-            }
-
             if (string.IsNullOrEmpty(apiKey))
             {
                 throw new ArgumentNullException(nameof(apiKey));
             }
+
+            apiBaseUrl = string.IsNullOrEmpty(apiBaseUrl) ? "https://www.estatesales.net" : apiBaseUrl;
 
             if (apiBaseUrl.EndsWith("/"))
             {
@@ -54,6 +51,7 @@ namespace EstateSalesNetPublicApi
             RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
 
             IRestResponse<List<Sale>> returnSale = this.restClient.Get<List<Sale>>(saleRequest);
+
             return returnSale.Data.AsReadOnly();
         }
 
