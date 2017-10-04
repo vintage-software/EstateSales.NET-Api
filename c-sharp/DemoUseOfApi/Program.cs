@@ -16,7 +16,7 @@ namespace DemoUseOfApi
             CheckDefaultValues(apiKey);
 
             // First create a new client to interact with the API
-            Client client = new Client("https://www.estatesales.net", apiKey);
+            Client client = new Client(apiKey);
 
             // You can do things like get your current list of sales
             // The number 1234 below is the orgID (or your account number)
