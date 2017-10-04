@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EstateSalesNetPublicApi.Models
 {
@@ -8,7 +9,7 @@ namespace EstateSalesNetPublicApi.Models
 
         public int OrgId { get; set; }
 
-        public SaleTypeEnum SaleType { get; set; }
+        public SaleType SaleType { get; set; }
 
         public string Name { get; set; }
 
@@ -22,7 +23,7 @@ namespace EstateSalesNetPublicApi.Models
 
         public DateTime? UtcCustomDateToShowAddress { get; set; }
 
-        public ShowAddressTypeEnum ShowAddressType { get; set; }
+        public ShowAddressType ShowAddressType { get; set; }
 
         public string Description { get; set; }
 
@@ -32,6 +33,7 @@ namespace EstateSalesNetPublicApi.Models
 
         public string VideoUrl { get; set; }
 
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "JSON Deserialization")]
         public string IsPublished { get; internal set; }
 
         public DateTime UtcDateCreated { get; set; }

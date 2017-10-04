@@ -1,4 +1,6 @@
-﻿namespace EstateSalesNetPublicApi.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace EstateSalesNetPublicApi.Models
 {
     public class SalePicture
     {
@@ -6,6 +8,7 @@
 
         public int SaleId { get; set; }
 
+        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is a data array. Collection object not really useful here.")]
         public byte[] ImageData { get; set; }
 
         public string Description { get; set; }

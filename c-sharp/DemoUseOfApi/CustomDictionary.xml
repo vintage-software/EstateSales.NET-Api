@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Dictionary>
+  <Words>
+    <Recognized>
+      <Word>OrgId</Word>
+      <Word>GetSampleSale</Word>
+      <Word>EstateSales</Word>
+      <Word>api-keys</Word>
+    </Recognized>
+  </Words>
+</Dictionary>

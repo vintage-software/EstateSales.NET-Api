@@ -62,12 +62,12 @@
     <Compile Include="Models\Sale.cs" />
     <Compile Include="Models\SalePicture.cs" />
     <Compile Include="Models\SaleDate.cs" />
-    <Compile Include="Models\SaleTypeEnum.cs" />
-    <Compile Include="Models\ShowAddressTypeEnum.cs" />
+    <Compile Include="Models\SaleType.cs" />
+    <Compile Include="Models\ShowAddressType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
+    <CodeAnalysisDictionary Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />

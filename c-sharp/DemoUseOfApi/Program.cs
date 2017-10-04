@@ -1,13 +1,12 @@
 ﻿using EstateSalesNetPublicApi;
 using System;
-using System.Collections.Generic;
 using Models = EstateSalesNetPublicApi.Models;
 
 namespace DemoUseOfApi
 {
-    public class Program
+    public static class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             // Set your API Key
             string apiKey = "SET_YOUR_API_KEY";
@@ -20,11 +19,11 @@ namespace DemoUseOfApi
 
             // You can do things like get your current list of sales
             // The number 1234 below is the orgID (or your account number)
-            List<Models.Sale> currentSales = client.GetActiveSales(1234);
+            // IReadOnlyCollection<Models.Sale> currentSales = client.GetActiveSales(1234);
 
             // You can request one of your sales and see the values currently stored
             // The number 12345 below is the saleID
-            Models.Sale testSale = client.GetSale(12345);
+            // Models.Sale testSale = client.GetSale(12345);
 
             // You can create a sale
             Models.Sale savedSale = client.CreateSale(GetSampleSale());
@@ -89,14 +88,14 @@ namespace DemoUseOfApi
             {
                 // Id = 12345,   Be sure to set the Id when you are using this object to edit
                 OrgId = 1234,
-                SaleType = Models.SaleTypeEnum.EstateSales,
+                SaleType = Models.SaleType.EstateSales,
                 Name = "This is my sale name",
                 Address = "100 My Address",
                 CrimeWorriesAddress = string.Empty,
                 PostalCodeNumber = "63755",
                 Directions = "These are my directions",
                 UtcCustomDateToShowAddress = null,
-                ShowAddressType = Models.ShowAddressTypeEnum.DayBeforeAtNine,
+                ShowAddressType = Models.ShowAddressType.DayBeforeAtNine,
                 Description = "<p>This is my description</p><ul><li>My Item</li><li>My Other Item</li></ul>",
                 Terms = "These are my terms",
                 AuctionUrl = string.Empty,  // Only set when the sale type is set to OnlineOnlyAuction

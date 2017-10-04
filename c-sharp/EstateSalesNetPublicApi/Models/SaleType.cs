@@ -1,6 +1,9 @@
-﻿namespace EstateSalesNetPublicApi.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace EstateSalesNetPublicApi.Models
 {
-    public enum SaleTypeEnum
+    [SuppressMessage("Microsoft.Design", "CA1027:MarkEnumsWithFlags", Justification = "Not meant to be used as flags in public API.")]
+    public enum SaleType
     {
         None = 0,
         EstateSales = 1,

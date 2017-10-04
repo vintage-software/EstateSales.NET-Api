@@ -53,12 +53,12 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         /// <param name="orgId">The orgId is your account number on EstateSales.NET</param>
         /// <returns>This returns a list of sale objects</returns>
-        public List<Sale> GetActiveSales(int orgId)
+        public IReadOnlyCollection<Sale> GetActiveSales(int orgId)
         {
             RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
 
             IRestResponse<List<Sale>> returnSale = this.CreateRestClient().Get<List<Sale>>(saleRequest);
-            return returnSale.Data;
+            return returnSale.Data.AsReadOnly();
         }
 
         /// <summary>
