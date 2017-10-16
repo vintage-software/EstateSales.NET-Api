@@ -22,7 +22,7 @@ namespace EstateSalesNetPublicApi
         /// changes, but can't guarantee that we will.
         /// </summary>
         /// <param name="apiBaseUrl">The base URL will almost always be https://www.estatesales.net (the default).</param>
-        /// <param name="apiKey">The key will be one that you generate inside your account on EstateSales.NET. You can do that here: https://www.estatesales.net/account/org/api-keys </param>
+        /// <param name="apiKey">The key will be one that you generate inside your account on EstateSales.NET. You can do that here: https://www.estatesales.net/account/company/api-keys </param>
         public Client(string apiKey, string apiBaseUrl = null)
         {
             if (string.IsNullOrEmpty(apiKey))
