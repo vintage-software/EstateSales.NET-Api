@@ -48,11 +48,10 @@ namespace EstateSalesNetPublicApi
         /// <returns>This returns a list of sale objects</returns>
         public IReadOnlyCollection<Sale> GetEditableSales(int orgId)
         {
-            RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
+            IRestResponse<List<Sale>> response = this.restClient.Get<List<Sale>>(request);
 
-            IRestResponse<List<Sale>> returnSale = this.restClient.Get<List<Sale>>(saleRequest);
-
-            return returnSale.Data.AsReadOnly();
+            return response.Data.AsReadOnly();
         }
 
         /// <summary>
@@ -61,10 +60,10 @@ namespace EstateSalesNetPublicApi
         /// <param name="saleId">Id of the sale to be retrieved</param>
         public Sale GetSale(int saleId)
         {
-            RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.GET);
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.GET);
+            IRestResponse<Sale> response = this.restClient.Get<Sale>(request);
 
-            IRestResponse<Sale> returnSale = this.restClient.Get<Sale>(saleRequest);
-            return returnSale.Data;
+            return response.Data;
         }
 
         /// <summary>
@@ -72,9 +71,10 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         public Sale CreateSale(Sale sale)
         {
-            RestRequest saleRequest = this.CreateRestRequest("/api/public-sales/", Method.POST, sale);
-            IRestResponse<Sale> returnSale = this.restClient.Post<Sale>(saleRequest);
-            return returnSale.Data;
+            RestRequest request = this.CreateRestRequest("/api/public-sales/", Method.POST, sale);
+            IRestResponse<Sale> response = this.restClient.Post<Sale>(request);
+
+            return response.Data;
         }
 
         /// <summary>
@@ -85,10 +85,10 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         public SaleDate CreateSaleDate(SaleDate saleDate)
         {
-            RestRequest dateRequest = this.CreateRestRequest("/api/sale-dates/", Method.POST, saleDate);
+            RestRequest request = this.CreateRestRequest("/api/sale-dates/", Method.POST, saleDate);
+            IRestResponse<SaleDate> response = this.restClient.Post<SaleDate>(request);
 
-            IRestResponse<SaleDate> returnSaleDate = this.restClient.Post<SaleDate>(dateRequest);
-            return returnSaleDate.Data;
+            return response.Data;
         }
 
         /// <summary>
@@ -97,10 +97,10 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         public SalePicture CreateSalePicture(SalePicture salePicture)
         {
-            RestRequest pictureRequest = this.CreateRestRequest("/api/sale-pictures/", Method.POST, salePicture);
+            RestRequest request = this.CreateRestRequest("/api/sale-pictures/", Method.POST, salePicture);
+            IRestResponse<SalePicture> response = this.restClient.Post<SalePicture>(request);
 
-            IRestResponse<SalePicture> returnSalePicture = this.restClient.Post<SalePicture>(pictureRequest);
-            return returnSalePicture.Data;
+            return response.Data;
         }
 
         /// <summary>
@@ -119,10 +119,9 @@ namespace EstateSalesNetPublicApi
                 throw new Exception("Sale object must contain an Id in order to update");
             }
 
-            RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/{sale.Id}", Method.PUT, sale);
-            saleRequest.AddJsonBody(sale);
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/{sale.Id}", Method.PUT, sale);
+            IRestResponse<Sale> response = this.restClient.Put<Sale>(request);
 
-            IRestResponse<Sale> response = this.restClient.Put<Sale>(saleRequest);
             return response.Data;
         }
 
@@ -135,9 +134,9 @@ namespace EstateSalesNetPublicApi
         /// on file. If the payment fails, the sale will not be published.</param>
         public Sale PublishSale(int saleId, bool autoPayAnyBalance)
         {
-            RestRequest publishRequest = this.CreateRestRequest($"/api/public-sales/{saleId}/publish/{autoPayAnyBalance}", Method.POST);
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}/publish/{autoPayAnyBalance}", Method.POST);
+            IRestResponse<Sale> response = this.restClient.Post<Sale>(request);
 
-            IRestResponse<Sale> response = this.restClient.Post<Sale>(publishRequest);
             return response.Data;
         }
 
@@ -147,9 +146,9 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         public Sale UnpublishSale(int saleId)
         {
-            RestRequest unpublishRequest = this.CreateRestRequest($"/api/public-sales/{saleId}/unpublish", Method.POST);
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}/unpublish", Method.POST);
+            IRestResponse<Sale> response = this.restClient.Post<Sale>(request);
 
-            IRestResponse<Sale> response = this.restClient.Post<Sale>(unpublishRequest);
             return response.Data;
         }
 
@@ -160,9 +159,9 @@ namespace EstateSalesNetPublicApi
         /// <param name="saleId">The id of the sale to be deleted</param>
         public HttpStatusCode DeleteSale(int saleId)
         {
-            RestRequest saleRequest = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.DELETE);
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.DELETE);
+            IRestResponse response = this.restClient.Delete(request);
 
-            IRestResponse response = this.restClient.Delete(saleRequest);
             return response.StatusCode;
         }
 
@@ -172,9 +171,9 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         public HttpStatusCode DeleteSaleDate(int dateId)
         {
-            RestRequest dateRequest = this.CreateRestRequest($"/api/sale-dates/{dateId}", Method.DELETE);
+            RestRequest request = this.CreateRestRequest($"/api/sale-dates/{dateId}", Method.DELETE);
+            IRestResponse response = this.restClient.Delete(request);
 
-            IRestResponse response = this.restClient.Delete(dateRequest);
             return response.StatusCode;
         }
 
@@ -184,9 +183,9 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         public HttpStatusCode DeletePicture(int pictureId)
         {
-            RestRequest pictureRequest = this.CreateRestRequest($"/api/sale-pictures/{pictureId}", Method.DELETE);
+            RestRequest request = this.CreateRestRequest($"/api/sale-pictures/{pictureId}", Method.DELETE);
+            IRestResponse response = this.restClient.Delete(request);
 
-            IRestResponse response = this.restClient.Delete(pictureRequest);
             return response.StatusCode;
         }
 
