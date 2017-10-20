@@ -51,6 +51,8 @@ namespace EstateSalesNetPublicApi
             RestRequest request = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
             IRestResponse<List<Sale>> response = this.restClient.Get<List<Sale>>(request);
 
+            response.VaildateResponse();
+
             return response.Data.AsReadOnly();
         }
 
@@ -63,6 +65,8 @@ namespace EstateSalesNetPublicApi
             RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.GET);
             IRestResponse<Sale> response = this.restClient.Get<Sale>(request);
 
+            response.VaildateResponse();
+
             return response.Data;
         }
 
@@ -73,6 +77,8 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest request = this.CreateRestRequest("/api/public-sales/", Method.POST, sale);
             IRestResponse<Sale> response = this.restClient.Post<Sale>(request);
+
+            response.VaildateResponse();
 
             return response.Data;
         }
@@ -88,6 +94,8 @@ namespace EstateSalesNetPublicApi
             RestRequest request = this.CreateRestRequest("/api/sale-dates/", Method.POST, saleDate);
             IRestResponse<SaleDate> response = this.restClient.Post<SaleDate>(request);
 
+            response.VaildateResponse();
+
             return response.Data;
         }
 
@@ -99,6 +107,8 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest request = this.CreateRestRequest("/api/sale-pictures/", Method.POST, salePicture);
             IRestResponse<SalePicture> response = this.restClient.Post<SalePicture>(request);
+
+            response.VaildateResponse();
 
             return response.Data;
         }
@@ -122,6 +132,8 @@ namespace EstateSalesNetPublicApi
             RestRequest request = this.CreateRestRequest($"/api/public-sales/{sale.Id}", Method.PUT, sale);
             IRestResponse<Sale> response = this.restClient.Put<Sale>(request);
 
+            response.VaildateResponse();
+
             return response.Data;
         }
 
@@ -137,6 +149,8 @@ namespace EstateSalesNetPublicApi
             RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}/publish/{autoPayAnyBalance}", Method.POST);
             IRestResponse<Sale> response = this.restClient.Post<Sale>(request);
 
+            response.VaildateResponse();
+
             return response.Data;
         }
 
@@ -148,6 +162,8 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}/unpublish", Method.POST);
             IRestResponse<Sale> response = this.restClient.Post<Sale>(request);
+
+            response.VaildateResponse();
 
             return response.Data;
         }
@@ -162,6 +178,8 @@ namespace EstateSalesNetPublicApi
             RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}", Method.DELETE);
             IRestResponse response = this.restClient.Delete(request);
 
+            response.VaildateResponse();
+
             return response.StatusCode;
         }
 
@@ -174,6 +192,8 @@ namespace EstateSalesNetPublicApi
             RestRequest request = this.CreateRestRequest($"/api/sale-dates/{dateId}", Method.DELETE);
             IRestResponse response = this.restClient.Delete(request);
 
+            response.VaildateResponse();
+
             return response.StatusCode;
         }
 
@@ -185,6 +205,8 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest request = this.CreateRestRequest($"/api/sale-pictures/{pictureId}", Method.DELETE);
             IRestResponse response = this.restClient.Delete(request);
+
+            response.VaildateResponse();
 
             return response.StatusCode;
         }
