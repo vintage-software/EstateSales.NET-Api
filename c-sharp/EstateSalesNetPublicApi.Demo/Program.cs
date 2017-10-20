@@ -91,15 +91,15 @@ namespace EstateSalesNetPublicApi.Demo
                 }
             }
 
-            Process.Start($"{ApiBaseUrl}{sale.Url}");
+            // You can publish your sale.
+            ////client.PublishSale(sale.Id, false);
+
+            Process.Start($"{ApiBaseUrl ?? "https://www.estatesales.net"}{sale.Url}");
 
             Console.WriteLine();
             Console.WriteLine($"Okay, your sale created and populated with dates and a picture!");
             Console.WriteLine($"You can view it at https://www.estatesales.net{sale.Url}.");
             ConsoleHelpers.Pause();
-
-            // You can publish your sale.
-            ////client.PublishSale(sale.Id, true);
 
             // You can unpublish your sale.
             ////client.UnpublishSale(sale.Id);
