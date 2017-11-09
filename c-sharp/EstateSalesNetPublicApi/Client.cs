@@ -211,6 +211,32 @@ namespace EstateSalesNetPublicApi
             return response.StatusCode;
         }
 
+        /// <summary>
+        /// This will return the sale dates currently associated with a sale.
+        /// </summary>
+        public IReadOnlyCollection<SaleDate> GetSaleDates(int saleId)
+        {
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}/dates", Method.GET);
+            IRestResponse<List<SaleDate>> response = this.restClient.Get<List<SaleDate>>(request);
+
+            response.VaildateResponse();
+
+            return response.Data.AsReadOnly();
+        }
+
+        /// <summary>
+        /// This will return the sale pictures currently associated with a sale.
+        /// </summary>
+        public IReadOnlyCollection<SalePicture> GetSalePictures(int saleId)
+        {
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/{saleId}/pictures", Method.GET);
+            IRestResponse<List<SalePicture>> response = this.restClient.Get<List<SalePicture>>(request);
+
+            response.VaildateResponse();
+
+            return response.Data.AsReadOnly();
+        }
+
         private RestRequest CreateRestRequest(string url, Method method, object jsonObject = null)
         {
             if (this.NeedNewAccessToken())

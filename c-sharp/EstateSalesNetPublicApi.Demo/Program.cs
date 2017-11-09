@@ -35,6 +35,8 @@ namespace EstateSalesNetPublicApi.Demo
                     foreach (Models.Sale editableSale in editableSales)
                     {
                         Console.WriteLine($"{editableSale.Name} ({(editableSale.IsPublished ? "Published" : "Not Published")}) ({ApiBaseUrl}{editableSale.Url})");
+                        Console.WriteLine($"Date Count: {client.GetSaleDates(editableSale.Id).Count} / Picture Count: {client.GetSalePictures(editableSale.Id).Count}");
+                        Console.WriteLine();
                     }
                 }
                 else
@@ -115,12 +117,22 @@ namespace EstateSalesNetPublicApi.Demo
                 Console.WriteLine("Next, we will delete the sale we just created...");
 
                 // You can delete any pictures you'd like (as long as you saved their id when initially saving them).
-                client.DeletePicture(pic1.Id);
+                if (pic1 != null)
+                {
+                    client.DeletePicture(pic1.Id);
+                }
 
-                // You can delete any dates you'd like (as long as you saved their id when initially saving them).
-                client.DeleteSaleDate(date1.Id);
-                client.DeleteSaleDate(date2.Id);
-                client.DeleteSaleDate(date3.Id);
+                // You can delete any dates you'd like
+                IEnumerable<Models.SaleDate> dates = client.GetSaleDates(sale.Id);
+                foreach (Models.SaleDate saleDate in dates)
+                {
+                    client.DeleteSaleDate(saleDate.Id);
+                }
+
+                // If you stored the date ids previously, you don't have to look them up first
+                ////client.DeleteSaleDate(date1.Id);
+                ////client.DeleteSaleDate(date2.Id);
+                ////client.DeleteSaleDate(date3.Id);
 
                 // You can delete your sale if you need to.
                 // You do not need to delete the sale dates and sale pictures first. You can just delete the sale.

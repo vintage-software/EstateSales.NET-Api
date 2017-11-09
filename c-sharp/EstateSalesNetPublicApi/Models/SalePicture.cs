@@ -18,5 +18,7 @@ namespace EstateSalesNetPublicApi.Models
         public string ThumbnailUrl { get; set; }
 
         public bool IsSold { get; set; }
+
+        public int Order { get; set; }
     }
 }

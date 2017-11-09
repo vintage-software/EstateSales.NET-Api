@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace EstateSalesNetPublicApi.Models
@@ -38,6 +39,13 @@ namespace EstateSalesNetPublicApi.Models
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "JSON Deserialization")]
         public bool IsPublished { get; private set; }
+
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "JSON Deserialization")]
+        public decimal? CurrentBalance { get; private set; }
+
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "JSON Deserialization")]
+        [SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists", Justification = "Needs To Be Generic List")]
+        public List<SaleFee> Fees { get; private set; }
 
         public DateTime UtcDateCreated { get; set; }
 
