@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EstateSalesNetPublicApi.Demo.Services;
+using EstateSalesNetPublicApi.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,194 +10,189 @@ namespace EstateSalesNetPublicApi.Demo
 {
     public static class Program
     {
-        private const string ApiBaseUrl = null; // Set to `null` to use the default.
+        private static string apiBaseUrl = GetApiBaseUrl(production: false);
 
         public static void Main()
         {
             try
             {
-                Console.Title = "EstateSales.NET Public Sales API Demo";
+                ConfigureConsoleWindow();
+                User user = UserService.GetUser(apiBaseUrl);
+                UserAction action = UserService.GetUserAction();
 
-                string apiKey = ConsoleHelpers.Prompt<string>("Enter your API Key");
-                int orgId = ConsoleHelpers.Prompt<int>("Enter your Org ID");
-
-                // First create a new client to interact with the API.
-                Client client = string.IsNullOrEmpty(ApiBaseUrl) ? new Client(apiKey) : new Client(apiKey, ApiBaseUrl);
-
-                // You can do things like get your current list of sales.
-                Console.WriteLine();
-                Console.WriteLine("Retrieving your active sales...");
-
-                IReadOnlyCollection<Models.Sale> editableSales = client.GetEditableSales(orgId);
-
-                if (editableSales.Any())
+                while (action != UserAction.Quit)
                 {
-                    Console.WriteLine($"You have {editableSales.Count} editable sale(s)!");
-
-                    foreach (Models.Sale editableSale in editableSales)
+                    switch (action)
                     {
-                        Console.WriteLine($"{editableSale.Name} ({(editableSale.IsPublished ? "Published" : "Not Published")}) ({ApiBaseUrl}{editableSale.Url})");
-                        Console.WriteLine($"Date Count: {client.GetSaleDates(editableSale.Id).Count} / Picture Count: {client.GetSalePictures(editableSale.Id).Count}");
-                        Console.WriteLine();
+                        case UserAction.ViewActiveSales:
+                            PrintActiveSales(user);
+                            break;
+                        case UserAction.CreateSale:
+                            CreateSale(user);
+                            break;
+                        case UserAction.DeleteSale:
+                            DeleteSale(user);
+                            break;
+                        case UserAction.PublishSale:
+                            PublishSale(user);
+                            break;
+                        case UserAction.UnpublishSale:
+                            UnpublishSale(user);
+                            break;
+                        default:
+                            throw new Exception("UserAction value not recognized.");
                     }
-                }
-                else
-                {
-                    Console.WriteLine("You have no editable sales. :( That's okay though, we're about to learn how to add one!");
-                }
 
-                Console.WriteLine();
-                Console.WriteLine("Next, we will add a new sale...");
-                Console.WriteLine();
-
-                // You can create a sale.
-                Models.Sale sale = GetSampleSale(orgId);
-
-                Console.WriteLine();
-                Console.WriteLine("Saving your sale...");
-
-                sale = client.CreateSale(sale);
-
-                Console.WriteLine();
-                Console.WriteLine("Setting your new sale to run for the next three days...");
-
-                // You can use that savedSale and create some dates on your sale.
-                // We are just setting up the objects to send...
-                DateTime tomorrowAt9am = DateTime.Now.Date.AddDays(1).AddHours(9).ToUniversalTime();
-                DateTime tomorrowAt4pm = DateTime.Now.Date.AddDays(1).AddHours(16).ToUniversalTime();
-                Models.SaleDate date1 = GetSampleSaleDate(sale.Id, tomorrowAt9am, tomorrowAt4pm);
-                Models.SaleDate date2 = GetSampleSaleDate(sale.Id, tomorrowAt9am.AddDays(1), tomorrowAt4pm.AddDays(1));
-                Models.SaleDate date3 = GetSampleSaleDate(sale.Id, tomorrowAt9am.AddDays(2), tomorrowAt4pm.AddDays(2));
-
-                // Now we are sending those to the API to be saved.
-                date1 = client.CreateSaleDate(date1);
-                date2 = client.CreateSaleDate(date2);
-                date3 = client.CreateSaleDate(date3);
-
-                Models.SalePicture pic1 = null;
-
-                Console.WriteLine();
-                string picturePath = ConsoleHelpers.Prompt<string>("Enter a path to a picture (optional)");
-                if (string.IsNullOrEmpty(picturePath) == false)
-                {
-                    if (File.Exists(picturePath))
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine("Uploading your sale picture...");
-
-                        // Get a picture ready to go.
-                        pic1 = GetSampleSalePicture(sale.Id, "testing", picturePath);
-
-                        // Send it to the API to be saved.
-                        pic1 = client.CreateSalePicture(pic1);
-                    }
-                    else
-                    {
-                        Console.WriteLine("File not found, skipping picture upload.");
-                    }
+                    ConsoleHelpers.Pause();
+                    Console.WriteLine();
+                    action = UserService.GetUserAction();
                 }
 
-                // You can publish your sale.
-                ////client.PublishSale(sale.Id, false);
-
-                Process.Start($"{ApiBaseUrl ?? "https://www.estatesales.net"}{sale.Url}");
-
                 Console.WriteLine();
-                Console.WriteLine($"Okay, your sale created and populated with dates and a picture!");
-                Console.WriteLine($"You can view it at https://www.estatesales.net{sale.Url}.");
-                ConsoleHelpers.Pause();
-
-                // You can unpublish your sale.
-                ////client.UnpublishSale(sale.Id);
-
-                // You can update things on your sale if you need to.
-                ////sale.Directions = "These are my new directions.";
-                ////sale.Description = "This is my updated description.";
-                ////client.UpdateSale(sale);
-
-                Console.WriteLine();
-                Console.WriteLine("Next, we will delete the sale we just created...");
-
-                // You can delete any pictures you'd like (as long as you saved their id when initially saving them).
-                if (pic1 != null)
-                {
-                    client.DeletePicture(pic1.Id);
-                }
-
-                // You can delete any dates you'd like
-                IEnumerable<Models.SaleDate> dates = client.GetSaleDates(sale.Id);
-                foreach (Models.SaleDate saleDate in dates)
-                {
-                    client.DeleteSaleDate(saleDate.Id);
-                }
-
-                // If you stored the date ids previously, you don't have to look them up first
-                ////client.DeleteSaleDate(date1.Id);
-                ////client.DeleteSaleDate(date2.Id);
-                ////client.DeleteSaleDate(date3.Id);
-
-                // You can delete your sale if you need to.
-                // You do not need to delete the sale dates and sale pictures first. You can just delete the sale.
-                client.DeleteSale(sale.Id);
-
-                Console.WriteLine();
-                Console.WriteLine("Okay, we're done now. Enjoy using the EstateSales.NET Sales API!");
+                Console.WriteLine("Thank you for using the EstateSales.NET API!");
             }
             catch (Exception exception)
             {
                 Console.WriteLine();
-                Console.WriteLine("An error occurred:");
-                Console.WriteLine(exception.Message);
+                Console.WriteLine($"An error occurred: {exception.Message}");
                 Console.WriteLine();
             }
 
-            ConsoleHelpers.Pause(true);
+            ConsoleHelpers.Pause(exiting: true);
         }
 
-        private static Models.Sale GetSampleSale(int orgId)
+        private static void DeleteSale(User user)
         {
-            return new Models.Sale()
+            List<Sale> activeSales = PrintActiveSales(user, showSaleDetails: false);
+
+            if (activeSales.Count > 0)
             {
-                OrgId = orgId,
-                SaleType = Models.SaleType.EstateSales,
-                Name = ConsoleHelpers.Prompt<string>("Enter a name for your sale"),
-                Address = ConsoleHelpers.Prompt<string>("Enter an address for your sale"),
-                CrimeWorriesAddress = string.Empty,
-                PostalCodeNumber = ConsoleHelpers.Prompt<string>("Enter a zip code for your sale"),
-                Directions = "These are my directions.",
-                UtcCustomDateToShowAddress = null,
-                ShowAddressType = Models.ShowAddressType.DayBeforeAtNine,
-                Description = ConsoleHelpers.Prompt<string>("Enter a description for your sale"),
-                Terms = ConsoleHelpers.Prompt<string>("Enter terms for your sale"),
-                AuctionUrl = string.Empty,  // Only set when the sale type is set to OnlineOnlyAuction
-                VideoUrl = ConsoleHelpers.Prompt<string>("Enter a sale video url (optional)")
-            };
+                Sale sale = SaleService.GetOneSale(activeSales, "Enter the ID of the sale you want to delete");
+
+                IEnumerable<SalePicture> pictures = user.GetSalePictures(sale.Id.Value);
+                foreach (SalePicture picture in pictures)
+                {
+                    user.DeletePicture(picture.Id.Value);
+                }
+
+                IEnumerable<SaleDate> dates = user.GetSaleDates(sale.Id.Value);
+                foreach (SaleDate saleDate in dates)
+                {
+                    user.DeleteSaleDate(saleDate.Id.Value);
+                }
+
+                user.DeleteSale(sale.Id.Value);
+                Console.WriteLine($"Sale #{sale.Id.Value} has been deleted. The pictures and dates for this sale have also been deleted.");
+            }
         }
 
-        private static Models.SaleDate GetSampleSaleDate(int saleId, DateTime utcStartDate, DateTime utcEndDate)
+        private static void CreateSale(User user)
         {
-            // Keep in mind when setting up the object to send that all dates and times are in UTC time.
-            return new Models.SaleDate()
+            Console.WriteLine();
+            Console.WriteLine("Creating a new sale...");
+            Sale sale = SaleService.GetSaleFromUserInput(user);
+
+            Console.WriteLine("Saving the new sale...");
+            sale = user.SaveSale(sale);
+
+            foreach (SaleDate date in SaleDateService.GetSaleDates(sale))
             {
-                SaleId = saleId,
-                UtcStartDate = utcStartDate,
-                UtcEndDate = utcEndDate,
-                ShowEndTime = true
-            };
+                user.CreateSaleDate(date);
+            }
+
+            string picturePath = ConsoleHelpers.Prompt<string>("Enter a local path to a picture (optional)");
+            if (string.IsNullOrEmpty(picturePath) == false)
+            {
+                if (File.Exists(picturePath))
+                {
+                    Console.WriteLine("Uploading your sale picture...");
+                    user.CreateSalePicture(SalePictureService.GetSalePicture(sale.Id.Value, "sale picture description", picturePath));
+                }
+                else
+                {
+                    Console.WriteLine("File not found, skipping picture upload.");
+                }
+            }
+
+            Process.Start($"{apiBaseUrl}{sale.Url}");
+
+            Console.WriteLine();
+            Console.WriteLine($"You can view your new sale at {apiBaseUrl}{sale.Url}.");
+
+            // You can update things on your sale if you need to.
+            ////sale.Directions = "These are my new directions.";
+            ////sale.Description = "This is my updated description.";
+            ////client.UpdateSale(sale);
         }
 
-        private static Models.SalePicture GetSampleSalePicture(int saleId, string description, string picturePath)
+        private static void PublishSale(User user)
         {
-            // This is an example of getting an image from a file path.
-            // But you just need to set the byte array, it doesn't HAVE to come from the file system.
-            byte[] imageData = File.ReadAllBytes(picturePath);
+            List<Sale> activeSales = PrintActiveSales(user, showSaleDetails: false);
 
-            return new Models.SalePicture()
+            if (activeSales.Count > 0)
             {
-                SaleId = saleId,
-                Description = description,
-                ImageData = imageData
-            };
+                Sale sale = SaleService.GetOneSale(activeSales, "Enter the ID of the sale you want to publish");
+                user.PublishSale(sale.Id.Value, autoPayAnyBalance: false);
+                Console.WriteLine($"Sale #{sale.Id.Value} has been published.");
+            }
+        }
+
+        private static void UnpublishSale(User user)
+        {
+            List<Sale> activeSales = PrintActiveSales(user, showSaleDetails: false);
+
+            if (activeSales.Count > 0)
+            {
+                Sale sale = SaleService.GetOneSale(activeSales, "Enter the ID of the sale you want to unpublish");
+                user.UnpublishSale(sale.Id.Value);
+                Console.WriteLine($"Sale #{sale.Id.Value} has been unpublished.");
+            }
+        }
+
+        private static List<Sale> PrintActiveSales(User user, bool showSaleDetails = true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Here is a list of your active sales");
+            Console.WriteLine();
+
+            IReadOnlyCollection<Sale> activeSales = user.GetActiveSales();
+
+            if (activeSales.Any())
+            {
+                foreach (Sale activeSale in activeSales)
+                {
+                    if (showSaleDetails)
+                    {
+                        Console.WriteLine($"Sale #{activeSale.Id}");
+                        Console.WriteLine($"  Name: {activeSale.Name}");
+                        Console.WriteLine($"  Status: {(activeSale.IsPublished.Value ? "Published" : "Not Published")}");
+                        Console.WriteLine($"  URL: {apiBaseUrl}{activeSale.Url}");
+                        Console.WriteLine($"  Picture Count: {user.GetSalePictures(activeSale.Id.Value).Count}");
+                        Console.WriteLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Sale #{activeSale.Id} ({activeSale.Name})");
+                    }
+                }
+
+                return activeSales.ToList();
+            }
+            else
+            {
+                Console.WriteLine("You do not have any active sales.");
+                return new List<Sale>();
+            }
+        }
+
+        private static void ConfigureConsoleWindow()
+        {
+            Console.Title = "EstateSales.NET Public Sales API Demo";
+        }
+
+        private static string GetApiBaseUrl(bool production = true)
+        {
+            return production ? "https://estatesales.net" : "https://localhost:1234";
         }
     }
 }

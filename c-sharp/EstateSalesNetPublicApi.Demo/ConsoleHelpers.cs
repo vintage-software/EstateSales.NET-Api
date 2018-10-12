@@ -9,7 +9,15 @@ namespace EstateSalesNetPublicApi.Demo
             Console.Write($"{prompt}: ");
 
             string input = Console.ReadLine();
-            return (T)Convert.ChangeType(input, typeof(T));
+
+            if (typeof(T).IsEnum)
+            {
+                return (T)Enum.Parse(typeof(T), input);
+            }
+            else
+            {
+                return (T)Convert.ChangeType(input, typeof(T));
+            }
         }
 
         public static void Pause(bool exiting = false)

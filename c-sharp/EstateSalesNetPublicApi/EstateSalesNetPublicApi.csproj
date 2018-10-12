@@ -81,7 +81,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client.cs" />
+    <Compile Include="ExceptionHelpers.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Models\AccessTokenResponse.cs" />
     <Compile Include="Models\SaleFee.cs" />
@@ -91,6 +92,10 @@
     <Compile Include="Models\SaleDate.cs" />
     <Compile Include="Models\SaleType.cs" />
     <Compile Include="Models\ShowAddressType.cs" />
+    <Compile Include="UserAction.cs" />
+    <Compile Include="UserData.cs" />
+    <Compile Include="Validators.cs" />
+    <Compile Include="Exceptions\ValidationException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

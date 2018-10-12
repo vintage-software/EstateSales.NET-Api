@@ -6,16 +6,16 @@ using System.Net;
 
 namespace EstateSalesNetPublicApi
 {
-    public class Client
+    public class User
     {
-        private readonly string apiKey;
+        private readonly UserData userData;
         private readonly RestClient restClient;
 
         private string accessToken;
         private DateTime? accessTokenGoodUntil;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Client"/> class.
+        /// Initializes a new instance of the <see cref="User"/> class.
         /// This client allows you to easily communicate with the EstateSales.NET public API. This client is not setup with
         /// all of the API requests available, but it does have several related to creating sales. Please be aware that this
         /// is released as a BETA release and could break at ANY time. We will try to notify API users of potential breaking
@@ -23,32 +23,26 @@ namespace EstateSalesNetPublicApi
         /// </summary>
         /// <param name="apiBaseUrl">The base URL will almost always be https://www.estatesales.net (the default).</param>
         /// <param name="apiKey">The key will be one that you generate inside your account on EstateSales.NET. You can do that here: https://www.estatesales.net/account/company/api-keys </param>
-        public Client(string apiKey, string apiBaseUrl = null)
+        public User(UserData data, string apiBaseUrl)
         {
-            if (string.IsNullOrEmpty(apiKey))
+            if (string.IsNullOrEmpty(data.ApiKey))
             {
-                throw new ArgumentNullException(nameof(apiKey));
+                throw new ArgumentNullException(nameof(data.ApiKey));
             }
 
-            apiBaseUrl = string.IsNullOrEmpty(apiBaseUrl) ? "https://www.estatesales.net" : apiBaseUrl;
-
-            if (apiBaseUrl.EndsWith("/"))
-            {
-                apiBaseUrl = apiBaseUrl.Substring(0, apiBaseUrl.Length - 1);
-            }
-
-            this.apiKey = apiKey;
-            this.restClient = new RestClient(apiBaseUrl);
+            this.userData = data;
+            this.restClient = new RestClient(FormatApiBaseUrl(apiBaseUrl));
         }
+
+        public int OrgId => this.userData.OrgId;
 
         /// <summary>
         /// GetActiveSales will return the list of sales available to edit for the account number provided.
         /// </summary>
-        /// <param name="orgId">The orgId is your account number on EstateSales.NET</param>
         /// <returns>This returns a list of sale objects</returns>
-        public IReadOnlyCollection<Sale> GetEditableSales(int orgId)
+        public IReadOnlyCollection<Sale> GetActiveSales()
         {
-            RestRequest request = this.CreateRestRequest($"/api/public-sales/org/{orgId}", Method.GET);
+            RestRequest request = this.CreateRestRequest($"/api/public-sales/org/{this.userData.OrgId}", Method.GET);
             IRestResponse<List<Sale>> response = this.restClient.Get<List<Sale>>(request);
 
             response.VaildateResponse();
@@ -73,7 +67,7 @@ namespace EstateSalesNetPublicApi
         /// <summary>
         /// Create a sale based on the properties on the sale object.
         /// </summary>
-        public Sale CreateSale(Sale sale)
+        public Sale SaveSale(Sale sale)
         {
             RestRequest request = this.CreateRestRequest("/api/public-sales/", Method.POST, sale);
             IRestResponse<Sale> response = this.restClient.Post<Sale>(request);
@@ -237,6 +231,11 @@ namespace EstateSalesNetPublicApi
             return response.Data.AsReadOnly();
         }
 
+        private static string FormatApiBaseUrl(string url)
+        {
+            return url.EndsWith("/") ? url.Substring(0, url.Length - 1) : url;
+        }
+
         private RestRequest CreateRestRequest(string url, Method method, object jsonObject = null)
         {
             if (this.NeedNewAccessToken())
@@ -265,7 +264,7 @@ namespace EstateSalesNetPublicApi
         {
             RestRequest tokenRequest = new RestRequest("/token", Method.POST);
             tokenRequest.AddParameter("grant_type", "refresh_token");
-            tokenRequest.AddParameter("refresh_token", this.apiKey);
+            tokenRequest.AddParameter("refresh_token", this.userData.ApiKey);
 
             IRestResponse<AccessTokenResponse> response = this.restClient.Post<AccessTokenResponse>(tokenRequest);
 
